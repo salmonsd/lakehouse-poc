@@ -28,7 +28,7 @@ object KafkaToBronzeDeltaTable extends App {
   val kafkaTopic = "dbserver1.inventory.customers"
   val subjectKey = s"${kafkaTopic}-key"
   val subjectValue = s"${kafkaTopic}-value"
-  logger.info(s"Setting Kafka Topic: ${kafkaTopic}")
+  logger.info(s"Set Kafka Topic: ${kafkaTopic}")
 
   // Define the Kafka parameters
   val kafkaParams = Map[String, String](
@@ -44,11 +44,6 @@ object KafkaToBronzeDeltaTable extends App {
   // Initialize the Schema Registry client
   val schemaRegistryClient: SchemaRegistryClient =
     new CachedSchemaRegistryClient(schemaRegistryUrl, 100)
-
-  // Get the latest Avro schema from the schema registry
-  val schemaMetadata: SchemaMetadata =
-    schemaRegistryClient.getLatestSchemaMetadata(subjectValue)
-  val avroValueSchema: String = schemaMetadata.getSchema
 
   // Delta Lake Locations
   val deltaBronzePath = "s3a://warehouse/bronze/inventory/customers"

@@ -9,7 +9,7 @@ up:
 	docker compose up -d
 
 start-postgres-connector:
-	curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-postgres-sr.json
+	curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @connect/register-postgres-sr.json
 
 consume-messages:
 	docker-compose exec schema-registry /usr/bin/kafka-avro-console-consumer \
@@ -27,6 +27,9 @@ scala-build:
 
 scala-dev:
 	docker compose -f docker-compose.dev.yaml run --rm scala
+
+spark-build:
+	docker compose build spark
 
 restart-spark:
 	docker compose stop spark && \

@@ -6,11 +6,11 @@ A Data Lakehouse Proof-of-Concept for streaming CDC events from a database into 
 
 Please make sure you have a Docker runtime installed and running.
 
-1. `make build-scala`
+1. `make scala-build`
 
     This will run `sbt assembly` and create your app jar inside the docker container
 
-2. `make build-spark`
+2. `make spark-build`
 
     Builds spark image with app jar from previous step.
 
@@ -40,7 +40,7 @@ To get started producing Delta Lake tables, run the following. You will need to 
 
 ## Making Database Changes
 
-Run `make login-postgres` to login to the db (or use a db client of your choice), and make changes the `customers` table. Provided below is a starting point:
+Run `make login-postgres` to login to the db (or use a db client of your choice), and make changes to the `customers` table. Provided below is a starting point:
 
 ```sql
 update customers set first_name = 'Jerry', last_name = 'Garcia' where id = 1002;
