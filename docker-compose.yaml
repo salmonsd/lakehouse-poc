@@ -1,0 +1,152 @@
+version: "3.7"
+
+# Settings and configurations that are common for all containers
+x-minio-common: &minio-common
+  image: quay.io/minio/minio:RELEASE.2023-07-21T21-12-44Z
+  command: server --console-address ":9001" http://minio1/data1
+  ports:
+    - 9000:9000
+    - 9001:9001
+  environment:
+    MINIO_ROOT_USER: minioadmin
+    MINIO_ROOT_PASSWORD: minioadmin
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+    interval: 30s
+    timeout: 20s
+    retries: 3
+
+services:
+  zookeeper:
+    image: quay.io/debezium/zookeeper:2.2
+    container_name: zookeeper
+    ports:
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
+
+  kafka:
+    image: quay.io/debezium/kafka:2.2
+    container_name: kafka
+    ports:
+      - 9092:9092
+    links:
+      - zookeeper
+    environment:
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+
+  postgres:
+    image: quay.io/debezium/example-postgres:2.2
+    container_name: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.0.1
+    container_name: schema-registry
+    ports:
+      - 8181:8181
+      - 8081:8081
+    environment:
+      - SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS=kafka:9092
+      - SCHEMA_REGISTRY_HOST_NAME=schema-registry
+      - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081
+    links:
+      - zookeeper
+
+  # connect:
+  #   image: quay.io/debezium/connect:2.2
+  #   container_name: connect
+  #   ports:
+  #    - 8083:8083
+  #    - 5005:5005
+  #   links:
+  #    - kafka
+  #    - postgres
+  #    - schema-registry
+  #   volumes:
+  #     - ./external_plugins:/kafka/external_plugins
+  #   environment:
+  #    - BOOTSTRAP_SERVERS=kafka:9092
+  #    - GROUP_ID=1
+  #    - CONFIG_STORAGE_TOPIC=my_connect_configs
+  #    - OFFSET_STORAGE_TOPIC=my_connect_offsets
+  #    - STATUS_STORAGE_TOPIC=my_connect_statuses
+  #    - KAFKA_CONNECT_PLUGINS_DIR=/kafka/connect,/kafka/external_plugins
+  #    - INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+  #    - INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+
+  # https://dev.to/lazypro/making-debezium-2x-support-confluent-schema-registry-3mf2
+  connect:
+    image: wirelessr/debezium-connect-avro:2.0_7.0.1
+    # image: local/konnect
+    container_name: connect
+    ports:
+      - 8083:8083
+    links:
+      - kafka
+      - postgres
+      - schema-registry
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=__connect_configs
+      - OFFSET_STORAGE_TOPIC=__connect_offsets
+      - STATUS_STORAGE_TOPIC=__connect_statuses
+      - INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+      - INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+
+  s3:
+    image: quay.io/minio/minio:RELEASE.2023-07-21T21-12-44Z
+    container_name: s3
+    command: server --console-address ":9001" /data
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+      - DEFAULT_BUCKET=warehouse
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    hostname: s3
+    volumes:
+      - data:/data
+      - ./s3/entrypoint.sh:/usr/local/bin/entrypoint.sh:ro
+      - ./s3/create-default-bucket.sh:/usr/local/bin/create-default-bucket.sh:ro
+    entrypoint: /usr/local/bin/entrypoint.sh
+ 
+  spark:
+    # image: docker.io/bitnami/spark:3.4.0
+    # container_name: spark
+    image: spark-lakehouse:latest
+    container_name: spark
+    build:
+      context: .
+      dockerfile: ./spark/spark.Dockerfile
+    env_file:
+      - ./spark/spark.env
+    ports:
+      - '8080:8080'
+      - '4040-4045:4040-4045'
+      - '18080:18080'
+    volumes:
+      - ./spark/spark-defaults.conf:/opt/bitnami/spark/conf/spark-defaults.conf
+      - ivy2_jars:/opt/bitnami/spark/.ivy2/jars/
+      - ivy2_cache:/opt/bitnami/spark/.ivy2/cache/
+
+## By default this config uses default local driver,
+## For custom volumes replace with volume driver configuration.
+volumes:
+  data:
+  ivy2_jars:
+  ivy2_cache:
+
+networks:
+  lakehouse:

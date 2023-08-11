@@ -1,0 +1,27 @@
+{
+    "name": "inventory-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "tasks.max": "1",
+        "database.hostname": "postgres",
+        "database.port": "5432",
+        "database.user": "postgres",
+        "database.password": "postgres",
+        "database.dbname" : "postgres",
+        "topic.prefix": "dbserver1",
+        "schema.include.list": "inventory",
+        "database.history.kafka.bootstrap.servers": "kafka:9092",
+        "database.history.kafka.topic": "schema-changes.inventory",
+        "key.converter": "io.confluent.connect.avro.AvroConverter",
+        "value.converter": "io.confluent.connect.avro.AvroConverter",
+        "key.converter.schema.registry.url": "http://schema-registry:8081",
+        "value.converter.schema.registry.url": "http://schema-registry:8081",
+        "decimal.handling.mode" : "double",
+        "transforms" : "unwrap",
+        "transforms.unwrap.type" : "io.debezium.transforms.ExtractNewRecordState",
+        "transforms.unwrap.drop.tombstones" : "false",
+        "transforms.unwrap.delete.handling.mode" : "rewrite",
+        "transforms.unwrap.add.fields" : "op,table,lsn,source.ts_ms,source.db,source.schema,source.txId",
+        "transforms.unwrap.add.fields.prefix" : "_cdc_meta_"
+    }
+}

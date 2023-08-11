@@ -1,0 +1,5 @@
+**/.scala-build/*
+**/target/*
+*.DS_Store
+.metals/*
+.vscode/*

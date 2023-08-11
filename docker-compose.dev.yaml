@@ -1,0 +1,16 @@
+version: "3.7"
+
+services:
+  scala:
+    image: lakehouse-scala-apps:latest
+    build:
+      context: ./scala-app
+      dockerfile: scala.Dockerfile
+    command: bash
+    volumes:
+      - ./scala-app:/usr/src/app
+    networks:
+      - scala-dev
+
+networks:
+  scala-dev:
