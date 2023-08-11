@@ -62,8 +62,8 @@ Run `make spark-shell` in another terminal window to start a spark shell, and us
 val deltaBronzePath = "s3a://warehouse/bronze/inventory/customers"
 val deltaSilverPath = "s3a://warehouse/silver/inventory/customers"
 
-val bronzeDf = spark.read.format("delta").option("inferSchema","true").load(deltaBronzePath)
-val silverDf = spark.read.format("delta").option("inferSchema","true").load(deltaSilverPath)
+val bronzeDf = spark.read.format("delta").load(deltaBronzePath)
+val silverDf = spark.read.format("delta").load(deltaSilverPath)
 
 bronzeDf.show(false)
 silverDf.show(false)
