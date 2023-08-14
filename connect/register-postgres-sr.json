@@ -19,7 +19,7 @@
         "decimal.handling.mode" : "double",
         "transforms" : "unwrap",
         "transforms.unwrap.type" : "io.debezium.transforms.ExtractNewRecordState",
-        "transforms.unwrap.drop.tombstones" : "false",
+        "transforms.unwrap.drop.tombstones" : "true",
         "transforms.unwrap.delete.handling.mode" : "rewrite",
         "transforms.unwrap.add.fields" : "op,table,lsn,source.ts_ms,source.db,source.schema,source.txId",
         "transforms.unwrap.add.fields.prefix" : "_cdc_meta_"

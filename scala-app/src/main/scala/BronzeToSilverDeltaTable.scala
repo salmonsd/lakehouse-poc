@@ -48,6 +48,8 @@ object BronzeToSilverDeltaTable extends App {
         deltaSilverTable
           .as("t")
           .merge(microBatchOutputDF.as("s"), "s.id = t.id")
+          .whenMatched("s._cdc_meta_op = 'd'")
+          .delete()
           .whenMatched()
           .updateAll()
           .whenNotMatched()
