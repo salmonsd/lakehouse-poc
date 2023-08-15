@@ -56,15 +56,35 @@ Visit <http://localhost:9001> to access the MinIO console, using `minioadmin/min
 
 ### Spark Shell
 
-Run `make spark-shell` in another terminal window to start a spark shell, and use the following code to see create the bronze and silver dataframes.
+Run `make spark-shell` in another terminal window to start a spark shell, and use the following code to see create the bronze and silver DataFrames.
+
+#### Viewing the DataFrames
 
 ```scala
+// set delta locations
 val deltaBronzePath = "s3a://warehouse/bronze/inventory/customers"
 val deltaSilverPath = "s3a://warehouse/silver/inventory/customers"
 
+// create dataframes
 val bronzeDf = spark.read.format("delta").load(deltaBronzePath)
 val silverDf = spark.read.format("delta").load(deltaSilverPath)
 
-bronzeDf.show(false)
-silverDf.show(false)
+// display dataframes
+bronzeDf.sort(asc("_cdc_meta_source_ts_ms")).show(false)
+silverDf.sort(asc("_cdc_meta_source_ts_ms")).show(false)
+```
+
+#### Using Delta Lake Time Travel
+
+Using Spark SQL below, we can select versions of the Delta Lake tables
+
+```scala
+// describe history of delta table
+spark.sql(s"DESCRIBE HISTORY delta.`${deltaSilverPath}`").show()
+
+// show delta table from a specific version
+spark.sql(s"select * from delta.`${deltaSilverPath}` VERSION AS OF 1").show(false)
+
+// show delta table from a specific timestamp
+spark.sql(s"select * from delta.`${deltaSilverPath}` TIMESTAMP AS OF 'yyyy-MM-dd HH:mm'").show(false)
 ```
