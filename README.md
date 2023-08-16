@@ -2,6 +2,16 @@
 
 A Data Lakehouse Proof-of-Concept for streaming CDC events from a database into cloud storage using Delta Lake
 
+## Overview
+
+```mermaid
+flowchart LR
+    A[postgres] --> B[Kafka Connect w/ Debezium]
+    B --> C{Kafka}
+    C -->D(Spark Structured Streaming -> Delta Lake Bronze)
+    D -->E(Spark Structured Streaming -> Delta Lake Silver)
+```
+
 ## Getting Started
 
 Please make sure you have a Docker runtime installed and running.
