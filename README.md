@@ -6,10 +6,12 @@ A Data Lakehouse Proof-of-Concept for streaming CDC events from a database into 
 
 ```mermaid
 flowchart LR
-    A[postgres] --> B[Kafka Connect w/ Debezium]
+    A[(postgres)] --> |Debezium| B[Kafka Connect]
     B --> C{Kafka}
-    C -->D(Spark Structured Streaming -> Delta Lake Bronze)
-    D -->E(Spark Structured Streaming -> Delta Lake Silver)
+    C -->D("Delta Lake (Bronze)")
+    subgraph "Spark Structured Streaming"
+    D -->E("Delta Lake (Silver)")
+    end
 ```
 
 ## Getting Started
