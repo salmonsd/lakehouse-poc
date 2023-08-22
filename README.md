@@ -54,10 +54,25 @@ To get started producing Delta Lake tables, run the following. You will need to 
 
 Run `make login-postgres` to login to the db (or use a db client of your choice), and make changes to the `customers` table. Provided below is a starting point:
 
+### Updates
+
 ```sql
 update customers set first_name = 'Jerry', last_name = 'Garcia' where id = 1002;
 update customers set first_name = 'Jerry', last_name = 'Garcia' where id = 1003;
 update customers set first_name = 'Jerry', last_name = 'Garcia' where id = 1004;
+```
+
+### Deletes
+
+```sql
+delete from customers where id = 1004;
+```
+
+### Column Additions (Schema Evolution)
+
+```sql
+alter table customers add column test_add_column varchar default null;
+insert into customers (id, first_name, last_name, email, test_add_column) values (1005, 'Prince', 'Nelson', 'prince.rogers.nelson@paisleypark.org', 'test_add');
 ```
 
 ## Viewing the Delta Tables
