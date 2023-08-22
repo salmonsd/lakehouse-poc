@@ -57,8 +57,6 @@ services:
     links:
       - zookeeper
 
-
-
   # https://dev.to/lazypro/making-debezium-2x-support-confluent-schema-registry-3mf2
   connect:
     image: wirelessr/debezium-connect-avro:2.0_7.0.1
