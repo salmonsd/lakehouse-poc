@@ -98,7 +98,7 @@ services:
       - ./s3/entrypoint.sh:/usr/local/bin/entrypoint.sh:ro
       - ./s3/create-default-bucket.sh:/usr/local/bin/create-default-bucket.sh:ro
     entrypoint: /usr/local/bin/entrypoint.sh
- 
+
   spark:
     # image: docker.io/bitnami/spark:3.4.0
     # container_name: spark
@@ -110,9 +110,9 @@ services:
     env_file:
       - ./spark/spark.env
     ports:
-      - '8080:8080'
-      - '4040-4045:4040-4045'
-      - '18080:18080'
+      - 8080:8080
+      - 4040-4045:4040-4045
+      - 18080:18080
     volumes:
       - ./spark/spark-defaults.conf:/opt/bitnami/spark/conf/spark-defaults.conf
       - ivy2_jars:/opt/bitnami/spark/.ivy2/jars/
