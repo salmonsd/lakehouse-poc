@@ -57,32 +57,11 @@ services:
     links:
       - zookeeper
 
-  # connect:
-  #   image: quay.io/debezium/connect:2.2
-  #   container_name: connect
-  #   ports:
-  #    - 8083:8083
-  #    - 5005:5005
-  #   links:
-  #    - kafka
-  #    - postgres
-  #    - schema-registry
-  #   volumes:
-  #     - ./external_plugins:/kafka/external_plugins
-  #   environment:
-  #    - BOOTSTRAP_SERVERS=kafka:9092
-  #    - GROUP_ID=1
-  #    - CONFIG_STORAGE_TOPIC=my_connect_configs
-  #    - OFFSET_STORAGE_TOPIC=my_connect_offsets
-  #    - STATUS_STORAGE_TOPIC=my_connect_statuses
-  #    - KAFKA_CONNECT_PLUGINS_DIR=/kafka/connect,/kafka/external_plugins
-  #    - INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-  #    - INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+
 
   # https://dev.to/lazypro/making-debezium-2x-support-confluent-schema-registry-3mf2
   connect:
     image: wirelessr/debezium-connect-avro:2.0_7.0.1
-    # image: local/konnect
     container_name: connect
     ports:
       - 8083:8083
